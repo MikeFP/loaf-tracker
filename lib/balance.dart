@@ -44,6 +44,7 @@ class BalancePage extends StatelessWidget {
       body: Column(
         children: [
           Material(
+            elevation: 4,
             color: Color(0xFF383838),
             child: InkWell(
               onTap: this.loansTap,
@@ -99,7 +100,6 @@ class BalancePage extends StatelessWidget {
             ),
           ),
           Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(height: 10),
               ListTile(
