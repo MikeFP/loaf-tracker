@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
-import 'balance.dart';
-import 'loans.dart';
+import 'views/balance.dart';
+import 'views/loans.dart';
+import 'getit.dart';
 
 void main() {
+  setup();
   runApp(MyApp());
 }
 
