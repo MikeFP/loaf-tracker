@@ -1,10 +1,12 @@
+import 'dart:async';
+
 import 'package:after_layout/after_layout.dart';
 import 'package:cash_loaf/model/person.dart';
 import 'package:cash_loaf/providers/loan_provider.dart';
 import 'package:flutter/material.dart';
 
 import '../getit.dart';
-import 'loan_page.dart';
+import 'add_loan_page.dart';
 
 class SelectPersonPage extends StatefulWidget {
   @override
@@ -14,16 +16,24 @@ class SelectPersonPage extends StatefulWidget {
 class _SelectPersonPageState extends State<SelectPersonPage>
     with AfterLayoutMixin {
   final provider = getIt<LoanProvider>();
+  final nameText = TextEditingController();
   List<Person> contacts = [];
+  StreamSubscription subs;
 
   @override
   void afterFirstLayout(BuildContext context) {
     provider.getAllLoans();
-    provider.loanStream.listen((people) {
+    subs = provider.loanStream.listen((people) {
       setState(() {
         contacts = people;
       });
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    subs.cancel();
   }
 
   @override
@@ -58,16 +68,24 @@ class _SelectPersonPageState extends State<SelectPersonPage>
               decoration: InputDecoration(
                 hintText: 'Novo contato ou filtrar existente...',
               ),
+              controller: nameText,
             ),
             SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 RaisedButton.icon(
-                  label: Text('ADICIONAR'),
-                  icon: Icon(Icons.add),
+                  padding: EdgeInsets.fromLTRB(16, 0, 10, 0),
+                  icon: Text('ADICIONAR'),
+                  label: Icon(Icons.add),
                   color: Colors.yellow[300],
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AddLoanPage(
+                                person: Person(name: nameText.text))));
+                  },
                 )
               ],
             ),
@@ -90,10 +108,11 @@ class _SelectPersonPageState extends State<SelectPersonPage>
                   title: Text(contacts[i].name),
                   onTap: () {
                     Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                LoanPage(person: contacts[i])));
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddLoanPage(person: contacts[i]),
+                      ),
+                    );
                   },
                 ),
               ),

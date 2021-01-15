@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'routes.dart';
 import 'views/balance_page.dart';
 import 'views/loans_page.dart';
 import 'getit.dart';

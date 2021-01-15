@@ -1,4 +1,5 @@
 import 'package:cash_loaf/model/person.dart';
+import 'package:cash_loaf/views/add_loan_page.dart';
 import 'package:flutter/material.dart';
 
 import '../currency.dart';
@@ -87,13 +88,24 @@ class PersonPage extends StatelessWidget {
                   ),
                 ),
             ),
+            SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                RaisedButton(
+                  child: Text('EMPRESTAR'),
+                  color: Colors.yellow[300],
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AddLoanPage(person: person)));
+                  },
+                )
+              ],
+            ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: null,
-        tooltip: 'Adicionar fonte',
-        child: Icon(Icons.add),
       ),
     );
   }
