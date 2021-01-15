@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:after_layout/after_layout.dart';
 import 'package:cash_loaf/model/person.dart';
 import 'package:cash_loaf/providers/loan_provider.dart';
@@ -7,6 +5,7 @@ import 'package:cash_loaf/currency.dart';
 import 'package:flutter/material.dart';
 
 import '../getit.dart';
+import 'person_page.dart';
 
 class LoansPage extends StatefulWidget {
   @override
@@ -28,8 +27,7 @@ class _LoansPageState extends State<LoansPage> with AfterLayoutMixin {
     provider.loanStream.listen((loans) {
       this.loans = loans;
       if (mounted) {
-        setState(() {
-        });
+        setState(() {});
       }
     });
   }
@@ -72,8 +70,11 @@ class _LoansPageState extends State<LoansPage> with AfterLayoutMixin {
                         fontSize: 16,
                         fontWeight: FontWeight.normal,
                       )),
+                  SizedBox(width: 4),
                   Text(
-                    '19.060,00',
+                    loans
+                        .fold<double>(0, (t, loan) => t + loan.totalOwned)
+                        .toCurrency(useSymbol: false),
                     style: TextStyle(
                       letterSpacing: 1.2,
                       fontSize: 28,
@@ -91,12 +92,14 @@ class _LoansPageState extends State<LoansPage> with AfterLayoutMixin {
             child: ListView.builder(
               itemCount: loans != null ? loans.length : 0,
               itemBuilder: (context, i) => ListTile(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => PersonPage(person: loans[i])));
+                },
                 contentPadding: EdgeInsets.fromLTRB(24, 0, 24, 0),
-                title: Text(loans[i].name,
-                    style: TextStyle(
-                      letterSpacing: 1,
-                      fontSize: 16,
-                    )),
+                title: Text(loans[i].name),
                 trailing: Text('${loans[i].totalOwned.toCurrency()}',
                     style: TextStyle(
                       letterSpacing: 1.2,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'views/balance.dart';
-import 'views/loans.dart';
+import 'views/balance_page.dart';
+import 'views/loans_page.dart';
 import 'getit.dart';
 
 void main() {
@@ -20,6 +20,24 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
         appBarTheme: AppBarTheme(
           color: Colors.black87,
+        ),
+        textTheme: TextTheme(
+          bodyText2: TextStyle(
+            fontSize: 16,
+            letterSpacing: 1,
+            height: 1.2,
+          ),
+          subtitle1: TextStyle(
+            fontSize: 16,
+            letterSpacing: 1,
+            height: 1.2,
+          ),
+          subtitle2: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.normal,
+            letterSpacing: 1.5,
+            height: 1.2,
+          ),
         ),
       ),
       home: MyHomePage(title: 'Cash Loaf'),
