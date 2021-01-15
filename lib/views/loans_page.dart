@@ -2,6 +2,7 @@ import 'package:after_layout/after_layout.dart';
 import 'package:cash_loaf/model/person.dart';
 import 'package:cash_loaf/providers/loan_provider.dart';
 import 'package:cash_loaf/currency.dart';
+import 'package:cash_loaf/views/select_person_page.dart';
 import 'package:flutter/material.dart';
 
 import '../getit.dart';
@@ -111,7 +112,10 @@ class _LoansPageState extends State<LoansPage> with AfterLayoutMixin {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: null,
+        onPressed: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => SelectPersonPage()));
+        },
         tooltip: 'Novo empréstimo',
         child: Icon(Icons.add),
       ),

@@ -30,7 +30,7 @@ class PersonPage extends StatelessWidget {
             Text.rich(
                 TextSpan(children: [
                   TextSpan(
-                      text: 'Fulano',
+                      text: person.name,
                       style: TextStyle(fontWeight: FontWeight.w600)),
                   TextSpan(text: ' deve'),
                 ]),
@@ -41,6 +41,7 @@ class PersonPage extends StatelessWidget {
                   style: TextStyle(
                     letterSpacing: 1.2,
                   )),
+              SizedBox(width: 4),
               Text(
                 person.totalOwned.toCurrency(useSymbol: false),
                 style: TextStyle(

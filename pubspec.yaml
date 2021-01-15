@@ -15,6 +15,7 @@ dependencies:
   get_it: ^4.0.1
   intl: ^0.16.1
   after_layout: ^1.0.7+2
+  flutter_masked_text: ^0.8.0
 
 dev_dependencies:
   flutter_test:

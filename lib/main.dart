@@ -39,6 +39,11 @@ class MyApp extends StatelessWidget {
             height: 1.2,
           ),
         ),
+        inputDecorationTheme: InputDecorationTheme(
+          hintStyle: TextStyle(color: Colors.black45),
+          focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.yellow[800])),
+        ),
       ),
       home: MyHomePage(title: 'Cash Loaf'),
     );
