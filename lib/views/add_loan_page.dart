@@ -127,7 +127,7 @@ class _AddLoanPageState extends State<AddLoanPage> with AfterLayoutMixin {
           ),
           SizedBox(height: 24),
           Expanded(
-            child: PageView(
+                        child: PageView(
               physics: NeverScrollableScrollPhysics(),
               controller: stepper,
               children: [

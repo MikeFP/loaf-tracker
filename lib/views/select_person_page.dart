@@ -50,74 +50,77 @@ class _SelectPersonPageState extends State<SelectPersonPage>
           icon: Icon(Icons.close),
         ),
       ),
-      body: Container(
-        padding: EdgeInsets.fromLTRB(24, 32, 24, 0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text.rich(
-              TextSpan(children: [
-                TextSpan(text: 'Qual o '),
-                TextSpan(
-                    text: 'nome',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                TextSpan(text: ' de quem está emprestando?'),
-              ]),
-            ),
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'Novo contato ou filtrar existente...',
+      body: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.fromLTRB(24, 32, 24, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text.rich(
+                TextSpan(children: [
+                  TextSpan(text: 'Qual o '),
+                  TextSpan(
+                      text: 'nome',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  TextSpan(text: ' de quem está emprestando?'),
+                ]),
               ),
-              controller: nameText,
-            ),
-            SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                RaisedButton.icon(
-                  padding: EdgeInsets.fromLTRB(16, 0, 10, 0),
-                  icon: Text('ADICIONAR'),
-                  label: Icon(Icons.add),
-                  color: Colors.yellow[300],
-                  onPressed: () {
-                    Navigator.push(
+              TextField(
+                decoration: InputDecoration(
+                  hintText: 'Novo contato ou filtrar existente...',
+                ),
+                controller: nameText,
+              ),
+              SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  RaisedButton.icon(
+                    padding: EdgeInsets.fromLTRB(16, 0, 10, 0),
+                    icon: Text('ADICIONAR'),
+                    label: Icon(Icons.add),
+                    color: Colors.yellow[300],
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => AddLoanPage(
+                                  person: Person(name: nameText.text))));
+                    },
+                  )
+                ],
+              ),
+              SizedBox(height: 12),
+              Text(
+                'CONTATOS',
+                style: Theme.of(context)
+                    .textTheme
+                    .subtitle2
+                    .copyWith(color: Color(0xFF383838)),
+              ),
+              Divider(thickness: 2),
+              ListView(
+                shrinkWrap: true,
+                children: List<Widget>.generate(
+                  contacts.length,
+                  (i) => ListTile(
+                    contentPadding: EdgeInsets.all(0),
+                    visualDensity: VisualDensity.compact,
+                    title: Text(contacts[i].name),
+                    onTap: () {
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => AddLoanPage(
-                                person: Person(name: nameText.text))));
-                  },
-                )
-              ],
-            ),
-            SizedBox(height: 12),
-            Text(
-              'CONTATOS',
-              style: Theme.of(context)
-                  .textTheme
-                  .subtitle2
-                  .copyWith(color: Color(0xFF383838)),
-            ),
-            Divider(thickness: 2),
-            ListView(
-              shrinkWrap: true,
-              children: List<Widget>.generate(
-                contacts.length,
-                (i) => ListTile(
-                  contentPadding: EdgeInsets.all(0),
-                  visualDensity: VisualDensity.compact,
-                  title: Text(contacts[i].name),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AddLoanPage(person: contacts[i]),
-                      ),
-                    );
-                  },
+                          builder: (context) =>
+                              AddLoanPage(person: contacts[i]),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
