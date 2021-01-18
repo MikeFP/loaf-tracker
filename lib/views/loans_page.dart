@@ -1,7 +1,7 @@
 import 'package:after_layout/after_layout.dart';
 import 'package:cash_loaf/model/person.dart';
 import 'package:cash_loaf/providers/loan_provider.dart';
-import 'package:cash_loaf/currency.dart';
+import 'package:cash_loaf/utils/currency.dart';
 import 'package:cash_loaf/views/select_person_page.dart';
 import 'package:flutter/material.dart';
 

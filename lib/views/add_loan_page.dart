@@ -3,7 +3,7 @@ import 'package:cash_loaf/utils/after_layout_mixin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 
-import '../currency.dart';
+import '../utils/currency.dart';
 import 'person_page.dart';
 
 class AddLoanPage extends StatefulWidget {

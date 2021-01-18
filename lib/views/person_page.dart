@@ -2,7 +2,8 @@ import 'package:cash_loaf/model/person.dart';
 import 'package:cash_loaf/views/add_loan_page.dart';
 import 'package:flutter/material.dart';
 
-import '../currency.dart';
+import '../utils/currency.dart';
+import 'pay_loan_page.dart';
 
 class PersonPage extends StatelessWidget {
   PersonPage({this.person});
@@ -56,7 +57,9 @@ class PersonPage extends StatelessWidget {
               child: Text('REGISTRAR RETORNO'),
               textColor: Colors.black54,
               borderSide: BorderSide(color: Colors.black38),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => PayLoanPage(person: person)));
+              },
             ),
             SizedBox(height: 24),
             Text(
