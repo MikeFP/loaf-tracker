@@ -1,8 +1,11 @@
+import 'package:cash_loaf/model/loan.dart';
 import 'package:cash_loaf/model/person.dart';
+import 'package:cash_loaf/providers/loan_provider.dart';
 import 'package:cash_loaf/utils/after_layout_mixin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 
+import '../getit.dart';
 import '../utils/currency.dart';
 import 'person_page.dart';
 
@@ -16,10 +19,36 @@ class AddLoanPage extends StatefulWidget {
 }
 
 class _AddLoanPageState extends State<AddLoanPage> with AfterLayoutMixin {
-  TextEditingController amountText = MoneyMaskedTextController();
+  final provider = getIt<LoanProvider>();
+  var amountText = MoneyMaskedTextController();
   var descriptionText = TextEditingController();
   var stepper = PageController();
   var targetPage = 0;
+
+  void _saveLoan() {
+    var loaner = Person(
+      id: widget.person.id,
+      name: widget.person.name,
+      loans: widget.person.loans
+        ..add(Loan(
+          amount: amountText.numberValue,
+          description: descriptionText.text,
+          date: DateTime.now(),
+        )),
+    );
+    provider.saveLoaner(loaner);
+    var callback = (Person data) {
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => PersonPage(person: data)),
+          ModalRoute.withName('/'));
+    };
+    if (widget.person.id == null) {
+      provider.loanerCreatedStream.first.then(callback);
+    } else {
+      provider.loanerUpdatedStream.first.then(callback);
+    }
+  }
 
   @override
   void afterFirstLayout(BuildContext context) {}
@@ -174,14 +203,7 @@ class _AddLoanPageState extends State<AddLoanPage> with AfterLayoutMixin {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           RaisedButton(
-                            onPressed: () {
-                              Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          PersonPage(person: widget.person)),
-                                  ModalRoute.withName('/'));
-                            },
+                            onPressed: _saveLoan,
                             child: Text('CONCLUIR'),
                             color: Colors.yellow[300],
                           ),

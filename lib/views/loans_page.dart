@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:after_layout/after_layout.dart';
 import 'package:cash_loaf/model/person.dart';
 import 'package:cash_loaf/providers/loan_provider.dart';
@@ -16,21 +18,47 @@ class LoansPage extends StatefulWidget {
 class _LoansPageState extends State<LoansPage> with AfterLayoutMixin {
   final provider = getIt<LoanProvider>();
   List<Person> loans = [];
+  List<StreamSubscription<Object>> subs = [];
 
   @override
   void initState() {
     super.initState();
-  }
-
-  @override
-  void afterFirstLayout(BuildContext context) {
-    provider.getAllLoans();
-    provider.loanStream.listen((loans) {
+    subs.add(provider.loanerStream.listen((loans) {
       this.loans = loans;
       if (mounted) {
         setState(() {});
       }
-    });
+    }));
+    subs.add(provider.loanerCreatedStream.listen((loaner) {
+      this.loans.add(loaner);
+      if (mounted) {
+        setState(() {});
+      }
+    }));
+    subs.add(provider.loanerUpdatedStream.listen((loaner) {
+      var i = this.loans.indexWhere((item) => item.id == loaner.id);
+      if (i == -1) {
+        this.loans[i] = loaner;
+      }
+      if (mounted) {
+        setState(() {});
+      }
+    }));
+  }
+
+  void _getLoaners() {
+    provider.getAllLoaners();
+  }
+
+  @override
+  void afterFirstLayout(BuildContext context) {
+    _getLoaners();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    subs.forEach((sub) => sub.cancel());
   }
 
   @override
@@ -86,18 +114,23 @@ class _LoansPageState extends State<LoansPage> with AfterLayoutMixin {
           ],
         ),
       ),
-      body: Column(
-        children: [
-          SizedBox(height: 10),
-          Expanded(
-            child: ListView.builder(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(height: 10),
+            ListView.builder(
+              shrinkWrap: true,
               itemCount: loans != null ? loans.length : 0,
               itemBuilder: (context, i) => ListTile(
                 onTap: () {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => PersonPage(person: loans[i])));
+                    context,
+                    MaterialPageRoute(
+                        settings: RouteSettings(name: "/loaner"),
+                        builder: (context) => PersonPage(person: loans[i])),
+                  ).then((_) {
+                    _getLoaners();
+                  });
                 },
                 contentPadding: EdgeInsets.fromLTRB(24, 0, 24, 0),
                 title: Text(loans[i].name),
@@ -108,13 +141,17 @@ class _LoansPageState extends State<LoansPage> with AfterLayoutMixin {
                     )),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => SelectPersonPage()));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => SelectPersonPage()),
+          ).then((_) {
+            _getLoaners();
+          });
         },
         tooltip: 'Novo empréstimo',
         child: Icon(Icons.add),

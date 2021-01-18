@@ -22,8 +22,8 @@ class _SelectPersonPageState extends State<SelectPersonPage>
 
   @override
   void afterFirstLayout(BuildContext context) {
-    provider.getAllLoans();
-    subs = provider.loanStream.listen((people) {
+    provider.getAllLoaners();
+    subs = provider.loanerStream.listen((people) {
       setState(() {
         contacts = people;
       });

@@ -272,8 +272,9 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
                                     Navigator.pushAndRemoveUntil(
                                         context,
                                         MaterialPageRoute(
-                                            builder: (context) => PersonPage(
-                                                person: widget.person)),
+                                          builder: (context) =>
+                                              PersonPage(person: widget.person),
+                                        ),
                                         ModalRoute.withName('/'));
                                   },
                             child: Text('CONCLUIR'),

@@ -16,6 +16,9 @@ dependencies:
   intl: ^0.16.1
   after_layout: ^1.0.7+2
   flutter_masked_text: ^0.8.0
+  sqflite: 
+  path:
+  collection: ^1.14.13
 
 dev_dependencies:
   flutter_test:

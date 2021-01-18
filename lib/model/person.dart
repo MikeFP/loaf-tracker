@@ -1,10 +1,11 @@
 import 'loan.dart';
 
 class Person {
+  int id;
   String name;
   List<Loan> loans;
 
-  Person({this.name, this.loans}) {
+  Person({this.id, this.name, this.loans}) {
     if (loans == null) loans = [];
   }
 

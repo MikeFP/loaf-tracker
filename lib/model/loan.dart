@@ -1,6 +1,8 @@
 class Loan {
+  int id;
   String description;
   double amount;
+  DateTime date;
 
-  Loan({this.description, this.amount});
+  Loan({this.id, this.description, this.amount, this.date});
 }
