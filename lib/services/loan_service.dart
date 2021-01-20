@@ -9,14 +9,14 @@ import 'database_service.dart';
 class LoanService {
   static var testLoans = [
     Person(name: 'Fulano', loans: [
-      Loan(amount: 15, description: 'Cream Cheese'),
-      Loan(amount: 85, description: 'Ventilador'),
+      Loan(amount: 15, description: 'Cream Cheese', date: DateTime.now()),
+      Loan(amount: 85, description: 'Ventilador', date: DateTime.now()),
     ]),
     Person(name: 'Beltrano', loans: [
-      Loan(amount: 150, description: 'Academia'),
+      Loan(amount: 150, description: 'Academia', date: DateTime.now()),
     ]),
     Person(name: 'Cicrano', loans: [
-      Loan(amount: 4100, description: 'Empréstimo'),
+      Loan(amount: 4100, description: 'Empréstimo', date: DateTime.now()),
     ]),
   ];
   static Future<List<Person>> getAllLoaners() async {

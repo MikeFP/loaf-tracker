@@ -1,4 +1,5 @@
 import 'package:cash_loaf/model/person.dart';
+import 'package:cash_loaf/shared/expandable_page_view.dart';
 import 'package:cash_loaf/utils/after_layout_mixin.dart';
 import 'package:cash_loaf/utils/currency.dart';
 import 'package:flutter/material.dart';
@@ -80,51 +81,51 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
               : Icon(Icons.chevron_left),
         ),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.only(left: 24, right: 24, top: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text.rich(
-                    TextSpan(children: [
-                      TextSpan(
-                          text: widget.person.name,
-                          style: TextStyle(fontWeight: FontWeight.w600)),
-                      TextSpan(
-                          text: (!layoutDone || targetPage == 0)
-                              ? ' deve'
-                              : ' está devolvendo'),
-                    ]),
-                    style: Theme.of(context).textTheme.bodyText2),
-                SizedBox(height: 6),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                  children: [
-                    Text('R\$',
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 24, right: 24, top: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text.rich(
+                      TextSpan(children: [
+                        TextSpan(
+                            text: widget.person.name,
+                            style: TextStyle(fontWeight: FontWeight.w600)),
+                        TextSpan(
+                            text: (!layoutDone || targetPage == 0)
+                                ? ' deve'
+                                : ' está devolvendo'),
+                      ]),
+                      style: Theme.of(context).textTheme.bodyText2),
+                  SizedBox(height: 6),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    children: [
+                      Text('R\$',
+                          style: TextStyle(
+                            letterSpacing: 1.2,
+                          )),
+                      SizedBox(width: 4),
+                      Text(
+                        (!layoutDone || targetPage == 0)
+                            ? widget.person.totalOwned
+                                .toCurrency(useSymbol: false)
+                            : amountText.text,
                         style: TextStyle(
                           letterSpacing: 1.2,
-                        )),
-                    SizedBox(width: 4),
-                    Text(
-                      (!layoutDone || targetPage == 0)
-                          ? widget.person.totalOwned
-                              .toCurrency(useSymbol: false)
-                          : amountText.text,
-                      style: TextStyle(
-                        letterSpacing: 1.2,
-                        fontSize: 24,
+                          fontSize: 24,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          SizedBox(height: 24),
-          Expanded(
-            child: PageView(
+            SizedBox(height: 24),
+            ExpandablePageView(
               physics: NeverScrollableScrollPhysics(),
               controller: stepper,
               children: [
@@ -183,83 +184,91 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 24, right: 24),
+                  padding:
+                      const EdgeInsets.only(left: 24, right: 24, bottom: 24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text('Selecione os itens que serão quitados'),
                       SizedBox(height: 10),
-                      ListView(
-                        shrinkWrap: true,
-                        children: List<Widget>.generate(
-                            widget.person.loans.length,
-                            (i) => ListTile(
-                                  contentPadding: EdgeInsets.all(0),
-                                  title: Text(
-                                      widget.person.loans[i].description,
-                                      style: _itemDisabled(i)
-                                          ? TextStyle(color: Colors.black54)
-                                          : TextStyle()),
-                                  onTap: _itemDisabled(i)
-                                      ? null
-                                      : () {
-                                          _setChecked(
-                                              i, !checkState.contains(i));
-                                        },
-                                  leading: Checkbox(
-                                    value: checkState.contains(i),
-                                    onChanged: _itemDisabled(i)
+                      ConstrainedBox(
+                        constraints:
+                            BoxConstraints(minHeight: 100, maxHeight: 350),
+                        child: ListView(
+                          shrinkWrap: true,
+                          children: List<Widget>.generate(
+                              widget.person.loans.length,
+                              (i) => ListTile(
+                                    contentPadding: EdgeInsets.all(0),
+                                    title: Text(
+                                        widget.person.loans[i].description,
+                                        style: _itemDisabled(i)
+                                            ? TextStyle(color: Colors.black54)
+                                            : TextStyle()),
+                                    onTap: _itemDisabled(i)
                                         ? null
-                                        : (val) {
-                                            _setChecked(i, val);
+                                        : () {
+                                            _setChecked(
+                                                i, !checkState.contains(i));
                                           },
+                                    leading: Checkbox(
+                                      value: checkState.contains(i),
+                                      onChanged: _itemDisabled(i)
+                                          ? null
+                                          : (val) {
+                                              _setChecked(i, val);
+                                            },
+                                    ),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          widget.person.loans[i].amount
+                                              .toCurrency(),
+                                          style: TextStyle(
+                                              fontStyle: checkState.contains(i)
+                                                  ? FontStyle.italic
+                                                  : FontStyle.normal,
+                                              decoration: checkState.contains(i)
+                                                  ? TextDecoration.lineThrough
+                                                  : TextDecoration.none,
+                                              color: _itemDisabled(i)
+                                                  ? Colors.black54
+                                                  : null),
+                                        ),
+                                        overflowIndex == i
+                                            ? Padding(
+                                                padding: EdgeInsets.only(
+                                                  left: 8,
+                                                ),
+                                                child: Text(overflowAmount
+                                                    .toCurrency()))
+                                            : SizedBox.shrink(),
+                                      ],
+                                    ),
+                                  ))
+                            ..add(
+                              Column(
+                                children: [
+                                  Divider(thickness: 2),
+                                  ListTile(
+                                    contentPadding: EdgeInsets.all(0),
+                                    title: Text('Total a quitar',
+                                        style:
+                                            TextStyle(color: Colors.black54)),
+                                    leading: Opacity(
+                                      opacity: 0,
+                                      child: Checkbox(tristate: true),
+                                    ),
+                                    trailing: Text(cappedSelected.toCurrency(),
+                                        style:
+                                            TextStyle(color: Colors.black54)),
                                   ),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        widget.person.loans[i].amount
-                                            .toCurrency(),
-                                        style: TextStyle(
-                                            fontStyle: checkState.contains(i)
-                                                ? FontStyle.italic
-                                                : FontStyle.normal,
-                                            decoration: checkState.contains(i)
-                                                ? TextDecoration.lineThrough
-                                                : TextDecoration.none,
-                                            color: _itemDisabled(i)
-                                                ? Colors.black54
-                                                : null),
-                                      ),
-                                      overflowIndex == i
-                                          ? Padding(
-                                              padding: EdgeInsets.only(
-                                                left: 8,
-                                              ),
-                                              child: Text(
-                                                  overflowAmount.toCurrency()))
-                                          : SizedBox.shrink(),
-                                    ],
-                                  ),
-                                ))
-                          ..add(
-                            Column(
-                              children: [
-                                Divider(thickness: 2),
-                                ListTile(
-                                  contentPadding: EdgeInsets.all(0),
-                                  title: Text('Total a quitar',
-                                      style: TextStyle(color: Colors.black54)),
-                                  leading: Opacity(
-                                    opacity: 0,
-                                    child: Checkbox(tristate: true),
-                                  ),
-                                  trailing: Text(cappedSelected.toCurrency(),
-                                      style: TextStyle(color: Colors.black54)),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
+                        ),
                       ),
                       SizedBox(height: 24),
                       Row(
@@ -287,8 +296,8 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
                 ),
               ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
