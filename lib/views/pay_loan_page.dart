@@ -1,3 +1,5 @@
+import 'package:loaf_tracker/providers/loan_provider.dart';
+import 'package:loaf_tracker/model/loan.dart';
 import 'package:loaf_tracker/model/person.dart';
 import 'package:loaf_tracker/shared/expandable_page_view.dart';
 import 'package:loaf_tracker/utils/after_layout_mixin.dart';
@@ -5,6 +7,7 @@ import 'package:loaf_tracker/utils/currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 
+import '../getit.dart';
 import 'person_page.dart';
 
 class PayLoanPage extends StatefulWidget {
@@ -17,6 +20,7 @@ class PayLoanPage extends StatefulWidget {
 }
 
 class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
+  final provider = getIt<LoanProvider>();
   final stepper = PageController();
   var amountText = MoneyMaskedTextController();
   int targetPage = 0;
@@ -27,9 +31,33 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
   double get amount => amountText.numberValue;
   double get overflowAmount => totalSelected - amount;
   double get cappedSelected => totalSelected.clamp(0, amount);
+  List<Loan> get selectedLoans => widget.person.loans
+      .asMap()
+      .entries
+      .where((entry) => checkState.contains(entry.key))
+      .map((entry) => entry.value)
+      .toList();
+  Loan get overflowLoan =>
+      overflowIndex != -1 ? widget.person.loans[overflowIndex] : null;
 
   @override
   void afterFirstLayout(BuildContext context) {}
+
+  void _payLoan() {
+    var paidLoans = selectedLoans.map((loan) => loan).toList()
+      ..remove(overflowLoan);
+
+    provider.payLoans(widget.person, paidLoans,
+        [Loan(id: overflowLoan.id, amount: overflowAmount)]);
+    provider.loanerUpdatedStream.first.then((loaner) {
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PersonPage(person: loaner),
+          ),
+          ModalRoute.withName('/'));
+    });
+  }
 
   void _setChecked(int index, bool value) {
     final selectedAmount = widget.person.loans[index].amount;
@@ -259,7 +287,10 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
                                             TextStyle(color: Colors.black54)),
                                     leading: Opacity(
                                       opacity: 0,
-                                      child: Checkbox(tristate: true),
+                                      child: Checkbox(
+                                          tristate: true,
+                                          onChanged: null,
+                                          value: false),
                                     ),
                                     trailing: Text(cappedSelected.toCurrency(),
                                         style:
@@ -275,17 +306,7 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           RaisedButton(
-                            onPressed: totalSelected < amount
-                                ? null
-                                : () {
-                                    Navigator.pushAndRemoveUntil(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              PersonPage(person: widget.person),
-                                        ),
-                                        ModalRoute.withName('/'));
-                                  },
+                            onPressed: totalSelected < amount ? null : _payLoan,
                             child: Text('CONCLUIR'),
                             color: Colors.yellow[300],
                           ),

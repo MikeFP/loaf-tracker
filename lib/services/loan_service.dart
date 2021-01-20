@@ -47,7 +47,8 @@ class LoanService {
     final Database db = await getIt<DatabaseService>().database;
 
     return await db.transaction((txn) async {
-      loaner.id = await txn.rawInsert('INSERT INTO person(name) VALUES(?)', [loaner.name]);
+      loaner.id = await txn
+          .rawInsert('INSERT INTO person(name) VALUES(?)', [loaner.name]);
 
       for (var loan in loaner.loans) {
         if (loan.id == null) {
@@ -103,5 +104,33 @@ class LoanService {
       }
       return loaner.loans;
     });
+  }
+
+  static Future<Person> payLoans(
+      Person loaner, List<Loan> paidLoans, List<Loan> updatedLoans) async {
+    final Database db = await getIt<DatabaseService>().database;
+
+    await db.transaction((txn) async {
+      for (var loan in paidLoans) {
+        await txn.rawUpdate(
+          'DELETE FROM loan WHERE id = ?',
+          [loan.id],
+        );
+      }
+      for (var loan in updatedLoans) {
+        await txn.rawUpdate(
+          'UPDATE loan SET amount = ? WHERE id = ?',
+          [loan.amount, loan.id],
+        );
+      }
+    });
+
+    for (var loan in paidLoans) {
+      loaner.loans.remove(loan);
+    }
+    for (var ul in updatedLoans) {
+      loaner.loans.firstWhere((loan) => loan.id == ul.id).amount = ul.amount;
+    }
+    return loaner;
   }
 }

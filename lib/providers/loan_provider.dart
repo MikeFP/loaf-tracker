@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:loaf_tracker/model/loan.dart';
 import 'package:loaf_tracker/services/loan_service.dart';
 
 import '../model/person.dart';
@@ -25,6 +26,10 @@ class LoanProvider extends ChangeNotifier {
       await LoanService.saveLoans(loaner);
       _loanerUpdatedStream.add(loaner);
     }
+  }
+
+  Future<void> payLoans(Person loaner, List<Loan> paidLoans, List<Loan> updatedLoans) async {
+    _loanerUpdatedStream.add(await LoanService.payLoans(loaner, paidLoans, updatedLoans));
   }
 
   dispose() {
