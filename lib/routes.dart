@@ -1,4 +1,4 @@
-import 'package:cash_loaf/main.dart';
+import 'package:loaf_tracker/main.dart';
 
 var routes = {
 };

@@ -1,7 +1,7 @@
-import 'package:cash_loaf/model/person.dart';
-import 'package:cash_loaf/shared/expandable_page_view.dart';
-import 'package:cash_loaf/utils/after_layout_mixin.dart';
-import 'package:cash_loaf/utils/currency.dart';
+import 'package:loaf_tracker/model/person.dart';
+import 'package:loaf_tracker/shared/expandable_page_view.dart';
+import 'package:loaf_tracker/utils/after_layout_mixin.dart';
+import 'package:loaf_tracker/utils/currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 

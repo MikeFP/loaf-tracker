@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:cash_loaf/services/loan_service.dart';
+import 'package:loaf_tracker/services/loan_service.dart';
 
 import '../model/person.dart';
 import 'package:flutter/widgets.dart';

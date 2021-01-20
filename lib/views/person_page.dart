@@ -1,5 +1,5 @@
-import 'package:cash_loaf/model/person.dart';
-import 'package:cash_loaf/views/add_loan_page.dart';
+import 'package:loaf_tracker/model/person.dart';
+import 'package:loaf_tracker/views/add_loan_page.dart';
 import 'package:flutter/material.dart';
 
 import '../utils/currency.dart';

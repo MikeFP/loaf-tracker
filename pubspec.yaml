@@ -1,4 +1,4 @@
-name: cash_loaf
+name: loaf_tracker
 description: A Flutter app to keep track of loans, debts and account balances.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev

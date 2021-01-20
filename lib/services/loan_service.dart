@@ -1,5 +1,5 @@
-import 'package:cash_loaf/model/loan.dart';
-import 'package:cash_loaf/model/person.dart';
+import 'package:loaf_tracker/model/loan.dart';
+import 'package:loaf_tracker/model/person.dart';
 import 'package:collection/collection.dart';
 import 'package:sqflite/sqflite.dart';
 

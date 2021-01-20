@@ -1,4 +1,4 @@
-import 'package:cash_loaf/services/loan_service.dart';
+import 'package:loaf_tracker/services/loan_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
