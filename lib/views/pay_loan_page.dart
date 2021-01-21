@@ -10,6 +10,7 @@ import 'package:loaf_tracker/utils/after_layout_mixin.dart';
 import 'package:loaf_tracker/utils/currency.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
+import 'package:loaf_tracker/views/add_source_page.dart';
 
 import '../getit.dart';
 import 'person_page.dart';
@@ -403,6 +404,28 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
                         ),
                       ),
                       SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          OutlineButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AddSourcePage(),
+                                ),
+                              ).then((res) {
+                                if (res is MoneySource) {
+                                  _payLoan(source: res);
+                                }
+                              });
+                            },
+                            label: Icon(Icons.arrow_right),
+                            icon: Text('NOVA FONTE'),
+                            padding: EdgeInsets.fromLTRB(16, 0, 4, 0),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
