@@ -387,6 +387,13 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
                               contentPadding: EdgeInsets.all(0),
                               visualDensity: VisualDensity.compact,
                               title: Text(user.sources[i].name),
+                              trailing: Text(
+                                user.sources[i].balance.toCurrency(),
+                                style: TextStyle(
+                                  letterSpacing: 1.2,
+                                  fontSize: 16,
+                                ),
+                              ),
                               onTap: () {
                                 _payLoan(source: user.sources[i]);
                               },

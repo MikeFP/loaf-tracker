@@ -114,6 +114,9 @@ class LoanService {
       {List<Loan> updatedLoans, List<MoneySource> updatedSources}) async {
     final Database db = await getIt<DatabaseService>().database;
 
+    if (updatedLoans == null) updatedLoans = [];
+    if (updatedSources == null) updatedSources = [];
+
     await db.transaction((txn) async {
       for (var loan in paidLoans) {
         await txn.rawUpdate(
@@ -129,7 +132,7 @@ class LoanService {
       }
       for (var source in updatedSources) {
         await txn.rawUpdate(
-          'UPDATE source SET balance = ? WHERE id = ?',
+          'UPDATE money_source SET balance = ? WHERE id = ?',
           [source.balance, source.id],
         );
       }
