@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:loaf_tracker/model/money_source.dart';
+import 'package:loaf_tracker/model/user.dart';
 import 'package:loaf_tracker/providers/loan_provider.dart';
 import 'package:loaf_tracker/model/loan.dart';
 import 'package:loaf_tracker/model/person.dart';
@@ -40,15 +44,47 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
   Loan get overflowLoan =>
       overflowIndex != -1 ? widget.person.loans[overflowIndex] : null;
 
-  @override
-  void afterFirstLayout(BuildContext context) {}
+  StreamSubscription subs;
+  User user;
 
-  void _payLoan() {
+  @override
+  void initState() {
+    super.initState();
+    user = provider.user;
+  }
+
+  @override
+  void afterFirstLayout(BuildContext context) {
+    subs = provider.userStream.listen((data) {
+      setState(() {
+        user = data;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    subs.cancel();
+  }
+
+  void _nextPage() {
+    stepper.nextPage(
+        duration: Duration(milliseconds: 500), curve: Curves.easeOutCubic);
+    setState(() {
+      targetPage += stepper.page < 1 ? 1 : 0;
+    });
+  }
+
+  void _payLoan({MoneySource source}) {
     var paidLoans = selectedLoans.map((loan) => loan).toList()
       ..remove(overflowLoan);
 
     provider.payLoans(widget.person, paidLoans,
-        [Loan(id: overflowLoan.id, amount: overflowAmount)]);
+        [Loan(id: overflowLoan.id, amount: overflowAmount)],
+        updatedSources: source != null
+            ? [MoneySource(id: source.id, balance: source.balance + amount)]
+            : null);
     provider.loanerUpdatedStream.first.then((loaner) {
       Navigator.pushAndRemoveUntil(
           context,
@@ -194,14 +230,7 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           FlatButton.icon(
-                            onPressed: () {
-                              stepper.nextPage(
-                                  duration: Duration(milliseconds: 500),
-                                  curve: Curves.easeOutCubic);
-                              setState(() {
-                                targetPage += stepper.page < 1 ? 1 : 0;
-                              });
-                            },
+                            onPressed: _nextPage,
                             label: Icon(Icons.arrow_right),
                             icon: Text('CONTINUAR'),
                             padding: EdgeInsets.fromLTRB(16, 0, 4, 0),
@@ -306,12 +335,66 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           RaisedButton(
-                            onPressed: totalSelected < amount ? null : _payLoan,
-                            child: Text('CONCLUIR'),
+                            onPressed:
+                                totalSelected < amount ? null : _nextPage,
+                            child: Text('CONTINUAR'),
                             color: Colors.yellow[300],
                           ),
                         ],
                       ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.only(left: 24, right: 24, bottom: 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(text: 'Escolha uma '),
+                            TextSpan(
+                                text: 'fonte',
+                                style: TextStyle(fontWeight: FontWeight.w600)),
+                            TextSpan(
+                              text: (' para acrescentar o valor recebido:'),
+                            ),
+                          ],
+                        ),
+                        style: Theme.of(context).textTheme.bodyText2,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: _payLoan,
+                            child: Text('PULAR'),
+                          ),
+                        ],
+                      ),
+                      Divider(thickness: 2),
+                      ConstrainedBox(
+                        constraints:
+                            BoxConstraints(minHeight: 100, maxHeight: 350),
+                        child: ListView(
+                          shrinkWrap: true,
+                          children: List<Widget>.generate(
+                            user.sources.length,
+                            (i) => ListTile(
+                              contentPadding: EdgeInsets.all(0),
+                              visualDensity: VisualDensity.compact,
+                              title: Text(user.sources[i].name),
+                              onTap: () {
+                                _payLoan(source: user.sources[i]);
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 24),
                     ],
                   ),
                 ),

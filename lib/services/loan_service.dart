@@ -1,6 +1,9 @@
 import 'package:loaf_tracker/model/loan.dart';
+import 'package:loaf_tracker/model/money_source.dart';
 import 'package:loaf_tracker/model/person.dart';
 import 'package:collection/collection.dart';
+import 'package:loaf_tracker/model/user.dart';
+import 'package:loaf_tracker/providers/loan_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 import '../getit.dart';
@@ -19,6 +22,7 @@ class LoanService {
       Loan(amount: 4100, description: 'Empréstimo', date: DateTime.now()),
     ]),
   ];
+
   static Future<List<Person>> getAllLoaners() async {
     final Database db = await getIt<DatabaseService>().database;
 
@@ -106,8 +110,8 @@ class LoanService {
     });
   }
 
-  static Future<Person> payLoans(
-      Person loaner, List<Loan> paidLoans, List<Loan> updatedLoans) async {
+  static Future<Person> payLoans(Person loaner, List<Loan> paidLoans,
+      {List<Loan> updatedLoans, List<MoneySource> updatedSources}) async {
     final Database db = await getIt<DatabaseService>().database;
 
     await db.transaction((txn) async {
@@ -123,6 +127,12 @@ class LoanService {
           [loan.amount, loan.id],
         );
       }
+      for (var source in updatedSources) {
+        await txn.rawUpdate(
+          'UPDATE source SET balance = ? WHERE id = ?',
+          [source.balance, source.id],
+        );
+      }
     });
 
     for (var loan in paidLoans) {
@@ -130,6 +140,13 @@ class LoanService {
     }
     for (var ul in updatedLoans) {
       loaner.loans.firstWhere((loan) => loan.id == ul.id).amount = ul.amount;
+    }
+    for (var s in updatedSources) {
+      getIt<LoanProvider>()
+          .user
+          .sources
+          .firstWhere((source) => s.id == source.id)
+          .balance = s.balance;
     }
     return loaner;
   }

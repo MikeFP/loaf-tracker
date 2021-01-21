@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import 'routes.dart';
+import 'services/database_service.dart';
 import 'views/balance_page.dart';
 import 'views/loans_page.dart';
 import 'getit.dart';
 
-void main() {
+Future<void> main() async {
   setup();
+  await getIt<DatabaseService>().setup();
   runApp(MyApp());
 }
 

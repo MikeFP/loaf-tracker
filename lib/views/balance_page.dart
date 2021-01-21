@@ -1,10 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:loaf_tracker/providers/loan_provider.dart';
+import 'package:loaf_tracker/utils/after_layout_mixin.dart';
 
-class BalancePage extends StatelessWidget {
+import '../getit.dart';
+import '../utils/currency.dart';
 
+class BalancePage extends StatefulWidget {
   BalancePage({this.loansTap});
 
   final Function() loansTap;
+
+  @override
+  _BalancePageState createState() => _BalancePageState();
+}
+
+class _BalancePageState extends State<BalancePage> with AfterLayoutMixin {
+  final provider = getIt<LoanProvider>();
+
+  @override
+  void initState() {
+    super.initState();
+    provider.loadUser();
+    provider.userStream.listen((data) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void afterFirstLayout(BuildContext context) {}
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +55,9 @@ class BalancePage extends StatelessWidget {
                     fontWeight: FontWeight.normal,
                   )),
               Text(
-                '1.078,55',
+                provider.user.sources
+                    .fold<double>(0, (v, s) => v + s.balance)
+                    .toCurrency(useSymbol: false),
                 style: TextStyle(
                   letterSpacing: 1.2,
                   fontSize: 28,
@@ -47,7 +74,7 @@ class BalancePage extends StatelessWidget {
             elevation: 4,
             color: Color(0xFF383838),
             child: InkWell(
-              onTap: this.loansTap,
+              onTap: widget.loansTap,
               child: Container(
                 padding: EdgeInsets.only(
                   left: 16,
@@ -79,7 +106,8 @@ class BalancePage extends StatelessWidget {
                                     fontWeight: FontWeight.w300,
                                   )),
                               Text(
-                                '19.060,00',
+                                provider.user.totalLent
+                                    .toCurrency(useSymbol: false),
                                 style: TextStyle(
                                   letterSpacing: 1.2,
                                   fontSize: 20,
@@ -102,44 +130,25 @@ class BalancePage extends StatelessWidget {
           Column(
             children: [
               SizedBox(height: 10),
-              ListTile(
-                contentPadding: EdgeInsets.fromLTRB(24, 0, 24, 0),
-                title: Text('Nubank',
-                    style: TextStyle(
-                      letterSpacing: 1,
-                      fontSize: 16,
-                    )),
-                trailing: Text('R\$ 100,00',
-                    style: TextStyle(
-                      letterSpacing: 1.2,
-                      fontSize: 16,
-                    )),
-              ),
-              ListTile(
-                contentPadding: EdgeInsets.fromLTRB(24, 0, 24, 0),
-                title: Text('Inter',
-                    style: TextStyle(
-                      letterSpacing: 1,
-                      fontSize: 16,
-                    )),
-                trailing: Text('R\$ 50,00',
-                    style: TextStyle(
-                      letterSpacing: 1.2,
-                      fontSize: 16,
-                    )),
-              ),
-              ListTile(
-                contentPadding: EdgeInsets.fromLTRB(24, 0, 24, 0),
-                title: Text('PicPay',
-                    style: TextStyle(
-                      letterSpacing: 1,
-                      fontSize: 16,
-                    )),
-                trailing: Text('R\$ 440,00',
-                    style: TextStyle(
-                      letterSpacing: 1.2,
-                      fontSize: 16,
-                    )),
+              ListView(
+                shrinkWrap: true,
+                children: List.generate(
+                  provider.user.sources.length,
+                  (i) => ListTile(
+                    contentPadding: EdgeInsets.fromLTRB(24, 0, 24, 0),
+                    title: Text(provider.user.sources[i].name,
+                        style: TextStyle(
+                          letterSpacing: 1,
+                          fontSize: 16,
+                        )),
+                    trailing:
+                        Text(provider.user.sources[i].balance.toCurrency(),
+                            style: TextStyle(
+                              letterSpacing: 1.2,
+                              fontSize: 16,
+                            )),
+                  ),
+                ),
               ),
             ],
           ),
