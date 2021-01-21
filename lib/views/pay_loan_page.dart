@@ -47,6 +47,8 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
   StreamSubscription subs;
   User user;
 
+  static const STEPS = 3;
+
   @override
   void initState() {
     super.initState();
@@ -72,7 +74,7 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
     stepper.nextPage(
         duration: Duration(milliseconds: 500), curve: Curves.easeOutCubic);
     setState(() {
-      targetPage += stepper.page < 1 ? 1 : 0;
+      targetPage += stepper.page < STEPS - 1 ? 1 : 0;
     });
   }
 
@@ -385,7 +387,6 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
                             user.sources.length,
                             (i) => ListTile(
                               contentPadding: EdgeInsets.all(0),
-                              visualDensity: VisualDensity.compact,
                               title: Text(user.sources[i].name),
                               trailing: Text(
                                 user.sources[i].balance.toCurrency(),

@@ -75,6 +75,14 @@ class LoanProvider extends ChangeNotifier {
     _loanerUpdatedStream.add(res);
   }
 
+  Future<void> saveUser(User user) async {
+    _userStream.add(await UserService.saveUser(user));
+  }
+
+  Future<void> deleteSource(MoneySource source) async {
+    _userStream.add(await UserService.deleteSource(user, source));
+  }
+
   dispose() {
     super.dispose();
     _loanerStream.close();

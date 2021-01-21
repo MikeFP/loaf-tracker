@@ -27,7 +27,7 @@ class UserService {
           .rawInsert('INSERT INTO person(name) VALUES (?)', [user.name]);
 
       for (var source in user.sources) {
-        source.id = await txn.rawUpdate(
+        source.id = await txn.rawInsert(
           'INSERT INTO money_source(name, balance, user_id) VALUES (?,?,?)',
           [
             source.name,
@@ -47,9 +47,42 @@ class UserService {
     var sources = (await db
             .rawQuery('SELECT * FROM money_source WHERE user_id = ?', [id]))
         .map((row) => MoneySource(
-            id: row['id'], balance: row['balance'], name: row['name'])).toList();
+            id: row['id'], balance: row['balance'], name: row['name']))
+        .toList();
 
     var loaners = await LoanService.getAllLoaners();
-    return User(id: row['id'], name: row['name'], loaners: loaners, sources: sources);
+    return User(
+        id: row['id'], name: row['name'], loaners: loaners, sources: sources);
+  }
+
+  static Future<User> saveUser(User user) async {
+    final Database db = await getIt<DatabaseService>().database;
+    return await db.transaction((txn) async {
+      for (var source in user.sources) {
+        if (source.id == null) {
+          source.id = await txn.rawInsert(
+            'INSERT INTO money_source(name, balance, user_id) VALUES (?,?,?)',
+            [
+              source.name,
+              source.balance,
+              user.id,
+            ],
+          );
+        } else {
+          await txn.rawUpdate(
+            'UPDATE money_source SET balance = ?, name = ? WHERE id = ?',
+            [source.balance, source.name, source.id],
+          );
+        }
+      }
+      return user;
+    });
+  }
+
+  static Future<User> deleteSource(User user, MoneySource source) async {
+    final Database db = await getIt<DatabaseService>().database;
+    await db.rawQuery('DELETE FROM money_source WHERE id = ?', [source.id]);
+    user.sources.removeAt(user.sources.indexOf(source));
+    return user;
   }
 }
