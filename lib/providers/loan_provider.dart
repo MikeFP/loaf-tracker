@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:loaf_tracker/model/loan.dart';
 import 'package:loaf_tracker/model/money_source.dart';
 import 'package:loaf_tracker/model/user.dart';
@@ -46,9 +47,9 @@ class LoanProvider extends ChangeNotifier {
   Future<void> loadUser() async {
     User user;
     if (UserService.testUser.id == null) {
-      user = await UserService.createUser(UserService.testUser);
+      user = await UserService.createUser(env['MOCK_DATA'] == 'true' ? UserService.testUser : User());
     }
-    user = await UserService.getUser(UserService.testUser.id);
+    user = await UserService.getUser(user.id);
     _user = user;
     _userStream.add(user);
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart' as DotEnv;
 
 import 'routes.dart';
 import 'services/database_service.dart';
@@ -6,7 +7,8 @@ import 'views/balance_page.dart';
 import 'views/loans_page.dart';
 import 'getit.dart';
 
-Future<void> main() async {
+void main() async {
+  await DotEnv.load();
   setup();
   await getIt<DatabaseService>().setup();
   runApp(MyApp());

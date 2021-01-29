@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -8,7 +9,7 @@ class DatabaseService {
   Future<void> setup() async {
     WidgetsFlutterBinding.ensureInitialized();
     _database =
-        openDatabase(join(await getDatabasesPath(), 'cash_loaf_database.db'),
+        openDatabase(join(await getDatabasesPath(), 'loaf_tracker_database.db'),
             onCreate: (db, version) {
       return Future.wait([
         db.execute(
@@ -22,11 +23,15 @@ class DatabaseService {
         ),
       ]);
     }, onOpen: (db) {
-      return db.execute('DELETE FROM loan; DELETE FROM money_source; DELETE FROM person;');
+      if (env['MOCK_DATA'] == 'true') {
+        return db.execute('DELETE FROM loan; DELETE FROM money_source; DELETE FROM person;');
+      }
     }, version: 1);
 
-    for(var loaner in LoanService.testLoans) {
-      await LoanService.createLoaner(loaner);
+    if (env['MOCK_DATA'] == 'true') {
+      for(var loaner in LoanService.testLoans) {
+        await LoanService.createLoaner(loaner);
+      }
     }
   }
 
