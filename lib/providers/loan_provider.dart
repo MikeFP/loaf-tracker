@@ -45,10 +45,10 @@ class LoanProvider extends ChangeNotifier {
   User get user => _user;
 
   Future<void> loadUser() async {
-    if (_user.id == null) {
+    _user = await UserService.getUser(1);
+    if (_user == null) {
       _user = await UserService.createUser(env['MOCK_DATA'] == 'true' ? UserService.testUser : User());
     }
-    _user = await UserService.getUser(user.id);
     _userStream.add(_user);
   }
 

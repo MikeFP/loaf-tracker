@@ -7,7 +7,7 @@ import 'database_service.dart';
 import 'loan_service.dart';
 
 class UserService {
-  static var testUser = User(sources: [
+  static var testUser = User(id: 1, sources: [
     MoneySource(name: 'Nubank', balance: 100),
     MoneySource(name: 'Inter', balance: 50),
     MoneySource(name: 'PicPay', balance: 440),
@@ -24,7 +24,7 @@ class UserService {
     final Database db = await getIt<DatabaseService>().database;
     return await db.transaction((txn) async {
       user.id = await txn
-          .rawInsert('INSERT INTO person(name) VALUES (?)', [user.name]);
+          .rawInsert('INSERT INTO person(id,name) VALUES (?,?)', [user.id, user.name]);
 
       for (var source in user.sources) {
         source.id = await txn.rawInsert(
@@ -42,8 +42,10 @@ class UserService {
 
   static Future<User> getUser(int id) async {
     final Database db = await getIt<DatabaseService>().database;
-    var row =
-        (await db.rawQuery('SELECT * FROM person WHERE id = ?', [id])).first;
+    var rows =
+        (await db.rawQuery('SELECT * FROM person WHERE id = ?', [id]));
+    if (rows.length == 0) return null;
+    var row = rows.first;
     var sources = (await db
             .rawQuery('SELECT * FROM money_source WHERE user_id = ?', [id]))
         .map((row) => MoneySource(
