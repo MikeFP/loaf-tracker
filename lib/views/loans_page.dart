@@ -24,7 +24,7 @@ class _LoansPageState extends State<LoansPage> with AfterLayoutMixin {
   void initState() {
     super.initState();
     subs.add(provider.loanerStream.listen((loans) {
-      this.loans = loans;
+      this.loans = List.from(loans);
       if (mounted) {
         setState(() {});
       }
@@ -37,7 +37,7 @@ class _LoansPageState extends State<LoansPage> with AfterLayoutMixin {
     }));
     subs.add(provider.loanerUpdatedStream.listen((loaner) {
       var i = this.loans.indexWhere((item) => item.id == loaner.id);
-      if (i == -1) {
+      if (i != -1) {
         this.loans[i] = loaner;
       }
       if (mounted) {

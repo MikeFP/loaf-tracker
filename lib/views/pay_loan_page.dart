@@ -83,8 +83,8 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
     var paidLoans = selectedLoans.map((loan) => loan).toList()
       ..remove(overflowLoan);
 
-    provider.payLoans(widget.person, paidLoans,
-        [Loan(id: overflowLoan.id, amount: overflowAmount)],
+    provider.payLoans(widget.person, paidLoans, overflowIndex >= 0 ? 
+        [Loan(id: overflowLoan.id, amount: overflowAmount)] : [],
         updatedSources: source != null
             ? [MoneySource(id: source.id, balance: source.balance + amount)]
             : null);

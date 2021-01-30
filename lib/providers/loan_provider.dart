@@ -45,13 +45,11 @@ class LoanProvider extends ChangeNotifier {
   User get user => _user;
 
   Future<void> loadUser() async {
-    User user;
-    if (UserService.testUser.id == null) {
-      user = await UserService.createUser(env['MOCK_DATA'] == 'true' ? UserService.testUser : User());
+    if (_user.id == null) {
+      _user = await UserService.createUser(env['MOCK_DATA'] == 'true' ? UserService.testUser : User());
     }
-    user = await UserService.getUser(user.id);
-    _user = user;
-    _userStream.add(user);
+    _user = await UserService.getUser(user.id);
+    _userStream.add(_user);
   }
 
   Future<void> getAllLoaners() async {
@@ -77,11 +75,13 @@ class LoanProvider extends ChangeNotifier {
   }
 
   Future<void> saveUser(User user) async {
-    _userStream.add(await UserService.saveUser(user));
+    _user = await UserService.saveUser(user);
+    _userStream.add(_user);
   }
 
   Future<void> deleteSource(MoneySource source) async {
-    _userStream.add(await UserService.deleteSource(user, source));
+    _user = await UserService.deleteSource(user, source);
+    _userStream.add(_user);
   }
 
   dispose() {
