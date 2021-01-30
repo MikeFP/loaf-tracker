@@ -24,6 +24,9 @@ class _AddLoanPageState extends State<AddLoanPage> with AfterLayoutMixin {
   var descriptionText = TextEditingController();
   var stepper = PageController();
   var targetPage = 0;
+  final _focusNode = FocusNode();
+
+  int get page => layoutDone ? stepper.page.round() : 0;
 
   void _saveLoan() {
     var loaner = Person(
@@ -58,6 +61,28 @@ class _AddLoanPageState extends State<AddLoanPage> with AfterLayoutMixin {
     super.initState();
   }
 
+  void _nextStep() {
+    stepper.nextPage(
+        duration: Duration(milliseconds: 500), curve: Curves.easeOutCubic);
+    setState(() {
+      targetPage += stepper.page < 1 ? 1 : 0;
+      FocusScope.of(context).requestFocus(_focusNode);
+    });
+  }
+
+  void _previousStep() {
+    if (stepper.page == 0)
+      Navigator.of(context).maybePop();
+    else {
+      stepper.previousPage(
+          duration: Duration(milliseconds: 500), curve: Curves.easeOutCubic);
+      setState(() {
+        targetPage -= stepper.page > 0 ? 1 : 0;
+        FocusScope.of(context).requestFocus(_focusNode);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,18 +91,7 @@ class _AddLoanPageState extends State<AddLoanPage> with AfterLayoutMixin {
         elevation: 0,
         leading: IconButton(
           color: Colors.black87,
-          onPressed: () {
-            if (stepper.page == 0)
-              Navigator.of(context).maybePop();
-            else {
-              stepper.previousPage(
-                  duration: Duration(milliseconds: 500),
-                  curve: Curves.easeOutCubic);
-              setState(() {
-                targetPage -= stepper.page > 0 ? 1 : 0;
-              });
-            }
-          },
+          onPressed: _previousStep,
           icon: (!layoutDone || targetPage == 0)
               ? Icon(Icons.close)
               : Icon(Icons.chevron_left),
@@ -153,6 +167,7 @@ class _AddLoanPageState extends State<AddLoanPage> with AfterLayoutMixin {
                       ),
                       TextField(
                         autofocus: true,
+                        focusNode: targetPage == 0 ? _focusNode : null,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           prefix: Padding(
@@ -161,6 +176,12 @@ class _AddLoanPageState extends State<AddLoanPage> with AfterLayoutMixin {
                           ),
                         ),
                         controller: amountText,
+                        onChanged: (val) {
+                          setState(() {});
+                        },
+                        onSubmitted: (val) {
+                          _nextStep();
+                        },
                         style: TextStyle(fontSize: 24),
                       ),
                       SizedBox(height: 24),
@@ -168,14 +189,8 @@ class _AddLoanPageState extends State<AddLoanPage> with AfterLayoutMixin {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           FlatButton.icon(
-                            onPressed: () {
-                              stepper.nextPage(
-                                  duration: Duration(milliseconds: 500),
-                                  curve: Curves.easeOutCubic);
-                              setState(() {
-                                targetPage += stepper.page < 1 ? 1 : 0;
-                              });
-                            },
+                            onPressed:
+                                amountText.numberValue != 0 ? _nextStep : null,
                             label: Icon(Icons.arrow_right),
                             icon: Text('CONTINUAR'),
                             padding: EdgeInsets.fromLTRB(16, 0, 4, 0),
@@ -193,10 +208,14 @@ class _AddLoanPageState extends State<AddLoanPage> with AfterLayoutMixin {
                       Text('Digite algo para identificar este empréstimo'),
                       TextField(
                         autofocus: true,
+                        focusNode: targetPage == 1 ? _focusNode : null,
                         decoration: InputDecoration(
-                            hintText: 'ex.: Uber, comida, etc.'),
+                          hintText: 'ex.: Uber, comida, etc.',
+                        ),
+                        textCapitalization: TextCapitalization.sentences,
                         controller: descriptionText,
                         style: TextStyle(fontSize: 20),
+                        onSubmitted: (val) => _saveLoan(),
                       ),
                       SizedBox(height: 24),
                       Row(

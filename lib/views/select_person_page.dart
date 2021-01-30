@@ -36,14 +36,24 @@ class _SelectPersonPageState extends State<SelectPersonPage>
     subs.cancel();
   }
 
+  void _navigateNewPerson() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AddLoanPage(person: Person(name: nameText.text)),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Container(
         decoration: BoxDecoration(
-            color: Theme.of(context).canvasColor,
+          color: Theme.of(context).canvasColor,
           shape: BoxShape.rectangle,
-          borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20), topRight: Radius.circular(20)),
         ),
         child: Scaffold(
           backgroundColor: Color(0x0),
@@ -77,6 +87,8 @@ class _SelectPersonPageState extends State<SelectPersonPage>
                     decoration: InputDecoration(
                       hintText: 'Novo contato ou filtrar existente...',
                     ),
+                    autofocus: true,
+                    onSubmitted: (val) { _navigateNewPerson(); },
                     controller: nameText,
                   ),
                   SizedBox(height: 12),
@@ -88,13 +100,7 @@ class _SelectPersonPageState extends State<SelectPersonPage>
                         icon: Text('ADICIONAR'),
                         label: Icon(Icons.add),
                         color: Colors.yellow[300],
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => AddLoanPage(
-                                      person: Person(name: nameText.text))));
-                        },
+                        onPressed: _navigateNewPerson,
                       )
                     ],
                   ),

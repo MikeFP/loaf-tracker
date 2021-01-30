@@ -19,8 +19,10 @@ class _AddSourcePageState extends State<AddSourcePage> {
   var nameText = TextEditingController();
   var balanceText = MoneyMaskedTextController();
   var _focus = new FocusNode();
+  var _formKey = GlobalKey<FormState>();
 
   bool get editMode => widget.source != null;
+  bool saving = false;
 
   @override
   void initState() {
@@ -39,6 +41,7 @@ class _AddSourcePageState extends State<AddSourcePage> {
   }
 
   void _saveSource() {
+    saving = true;
     var index = provider.user.sources.indexOf(widget.source);
     var oldSource = editMode ? provider.user.sources[index] : null;
     var source =
@@ -57,6 +60,7 @@ class _AddSourcePageState extends State<AddSourcePage> {
       } else {
         provider.user.sources.removeLast();
       }
+      saving = false;
     });
   }
 
@@ -97,7 +101,7 @@ class _AddSourcePageState extends State<AddSourcePage> {
         ],
       ),
     ).then((res) {
-      if(res) {
+      if (res) {
         Navigator.pop(context, null);
       }
     });
@@ -141,59 +145,73 @@ class _AddSourcePageState extends State<AddSourcePage> {
           body: SingleChildScrollView(
             child: Container(
               padding: EdgeInsets.fromLTRB(24, 0, 24, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 8),
-                  Text(
-                    !editMode ? 'Nova fonte monetária' : widget.source.name,
-                    style: Theme.of(context).textTheme.headline6,
-                  ),
-                  SizedBox(height: 32),
-                  Text('Como deseja chamar essa fonte?'),
-                  TextField(
-                    autofocus: true,
-                    decoration: InputDecoration(
-                      hintText: 'Banco, colchão, carteira etc.',
+              child: Form(
+                key: _formKey,
+                onChanged: () {
+                  setState(() {});
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 8),
+                    Text(
+                      !editMode ? 'Nova fonte monetária' : widget.source.name,
+                      style: Theme.of(context).textTheme.headline6,
                     ),
-                    controller: nameText,
-                  ),
-                  SizedBox(height: 24),
-                  Text(editMode
-                      ? 'Informe o novo saldo'
-                      : 'Informe o saldo inicial'),
-                  TextField(
-                    focusNode: _focus,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      prefix: Padding(
-                        padding: EdgeInsets.only(right: 8),
-                        child: Text('R\$'),
+                    SizedBox(height: 32),
+                    Text('Como deseja chamar essa fonte?'),
+                    TextFormField(
+                      autofocus: true,
+                      decoration: InputDecoration(
+                        hintText: 'Banco, colchão, carteira etc.',
                       ),
+                      controller: nameText,
+                      textInputAction: TextInputAction.next,
+                      validator: (value) => value.isEmpty ? '' : null,
                     ),
-                    controller: balanceText,
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      editMode
-                          ? RaisedButton(
-                              onPressed: _saveSource,
-                              child: Text('SALVAR'),
-                              color: Colors.yellow[300],
-                            )
-                          : RaisedButton.icon(
-                              padding: EdgeInsets.fromLTRB(16, 0, 10, 0),
-                              icon: Text('ADICIONAR'),
-                              label: Icon(Icons.add),
-                              color: Colors.yellow[300],
-                              onPressed: _saveSource,
-                            )
-                    ],
-                  ),
-                ],
+                    SizedBox(height: 24),
+                    Text(editMode
+                        ? 'Informe o novo saldo'
+                        : 'Informe o saldo inicial'),
+                    TextFormField(
+                      focusNode: _focus,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        prefix: Padding(
+                          padding: EdgeInsets.only(right: 8),
+                          child: Text('R\$'),
+                        ),
+                      ),
+                      controller: balanceText,
+                      style: TextStyle(fontSize: 18),
+                      onFieldSubmitted: (val) {
+                        _saveSource();
+                      },
+                    ),
+                    SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        editMode
+                            ? RaisedButton(
+                                onPressed: _saveSource,
+                                child: Text('SALVAR'),
+                                color: Colors.yellow[300],
+                              )
+                            : RaisedButton.icon(
+                                padding: EdgeInsets.fromLTRB(16, 0, 10, 0),
+                                icon: Text('ADICIONAR'),
+                                label: Icon(Icons.add),
+                                color: Colors.yellow[300],
+                                onPressed: (_formKey.currentState != null &&
+                                        _formKey.currentState.validate() && !saving)
+                                    ? _saveSource
+                                    : null,
+                              )
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

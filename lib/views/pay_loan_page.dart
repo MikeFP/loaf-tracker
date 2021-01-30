@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:loaf_tracker/model/money_source.dart';
 import 'package:loaf_tracker/model/user.dart';
@@ -48,6 +49,9 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
   StreamSubscription subs;
   User user;
 
+  final _focusNode = FocusNode();
+  int get page => layoutDone ? stepper.page.round() : 0;
+
   static const STEPS = 3;
 
   @override
@@ -71,20 +75,50 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
     subs.cancel();
   }
 
-  void _nextPage() {
-    stepper.nextPage(
-        duration: Duration(milliseconds: 500), curve: Curves.easeOutCubic);
+  void _nextStep() {
+    if (page == 0) {
+      amountText.text = min(amountText.numberValue, widget.person.totalOwned)
+          .toCurrency(useSymbol: false);
+    }
+    FocusScope.of(context).unfocus();
+    stepper
+        .nextPage(
+            duration: Duration(milliseconds: 500), curve: Curves.easeOutCubic)
+        .then((_) {
+      FocusScope.of(context).requestFocus(_focusNode);
+    });
     setState(() {
       targetPage += stepper.page < STEPS - 1 ? 1 : 0;
     });
+  }
+
+  void _previousStep() {
+    if (stepper.page == 0)
+      Navigator.of(context).maybePop();
+    else {
+      FocusScope.of(context).unfocus();
+      stepper
+          .previousPage(
+              duration: Duration(milliseconds: 500), curve: Curves.easeOutCubic)
+          .then((_) {
+        FocusScope.of(context).requestFocus(_focusNode);
+      });
+      setState(() {
+        targetPage -= stepper.page > 0 ? 1 : 0;
+      });
+    }
   }
 
   void _payLoan({MoneySource source}) {
     var paidLoans = selectedLoans.map((loan) => loan).toList()
       ..remove(overflowLoan);
 
-    provider.payLoans(widget.person, paidLoans, overflowIndex >= 0 ? 
-        [Loan(id: overflowLoan.id, amount: overflowAmount)] : [],
+    provider.payLoans(
+        widget.person,
+        paidLoans,
+        overflowIndex >= 0
+            ? [Loan(id: overflowLoan.id, amount: overflowAmount)]
+            : [],
         updatedSources: source != null
             ? [MoneySource(id: source.id, balance: source.balance + amount)]
             : null);
@@ -131,18 +165,7 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
         elevation: 0,
         leading: IconButton(
           color: Colors.black87,
-          onPressed: () {
-            if (stepper.page == 0)
-              Navigator.of(context).maybePop();
-            else {
-              stepper.previousPage(
-                  duration: Duration(milliseconds: 500),
-                  curve: Curves.easeOutCubic);
-              setState(() {
-                targetPage -= stepper.page > 0 ? 1 : 0;
-              });
-            }
-          },
+          onPressed: _previousStep,
           icon: (!layoutDone || targetPage == 0)
               ? Icon(Icons.close)
               : Icon(Icons.chevron_left),
@@ -218,6 +241,7 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
                       ),
                       TextField(
                         autofocus: true,
+                        focusNode: targetPage == 0 ? _focusNode : null,
                         keyboardType: TextInputType.number,
                         decoration: InputDecoration(
                           prefix: Padding(
@@ -227,13 +251,15 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
                         ),
                         controller: amountText,
                         style: TextStyle(fontSize: 24),
+                        onChanged: (val) => setState(() {}),
+                        onSubmitted: (val) => _nextStep(),
                       ),
                       SizedBox(height: 24),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           FlatButton.icon(
-                            onPressed: _nextPage,
+                            onPressed: amount > 0 ? _nextStep : null,
                             label: Icon(Icons.arrow_right),
                             icon: Text('CONTINUAR'),
                             padding: EdgeInsets.fromLTRB(16, 0, 4, 0),
@@ -339,7 +365,7 @@ class _PayLoanPageState extends State<PayLoanPage> with AfterLayoutMixin {
                         children: [
                           RaisedButton(
                             onPressed:
-                                totalSelected < amount ? null : _nextPage,
+                                totalSelected < amount ? null : _nextStep,
                             child: Text('CONTINUAR'),
                             color: Colors.yellow[300],
                           ),
